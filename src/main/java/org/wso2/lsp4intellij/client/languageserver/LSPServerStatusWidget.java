@@ -20,6 +20,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -27,6 +28,7 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
+import com.intellij.openapi.wm.StatusBarWidgetFactory;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.Consumer;
@@ -39,14 +41,13 @@ import org.wso2.lsp4intellij.requests.Timeouts;
 import org.wso2.lsp4intellij.utils.ApplicationUtils;
 import org.wso2.lsp4intellij.utils.GUIUtils;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.*;
 
 public class LSPServerStatusWidget implements StatusBarWidget {
 
@@ -147,8 +148,10 @@ public class LSPServerStatusWidget implements StatusBarWidget {
             StatusBar statusBar = manager.getStatusBar(project);
             LSPServerStatusWidget.removeWidgetID(this);
             if (statusBar != null)
-                ApplicationUtils.invokeLater(() -> statusBar.removeWidget(ID()));
-
+                ApplicationUtils.invokeLater(() -> {
+                    StatusBarWidgetFactory factory = ServiceManager.getService(StatusBarWidgetFactory.class);
+                    factory.disposeWidget(this);
+                });
         }
     }
 
